@@ -137,8 +137,9 @@ def cmd_analyze(args):
 
 
 def cmd_ui(args):
+    print(f"Starting Web UI on http://127.0.0.1:{args.port} ...", flush=True)
     from app.web_ui import demo
-    demo.launch(server_port=args.port, share=args.share)
+    demo.launch(server_port=args.port, server_name="127.0.0.1", share=args.share)
 
 
 def cmd_serve(args):
