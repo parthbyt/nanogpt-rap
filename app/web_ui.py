@@ -11,7 +11,8 @@ from rapgpt.metrics import analyze_rap_lyrics
 from rapgpt.model import NanoGPT
 from rapgpt.tokenizer import CADENCES, GENRES, MOODS, RHYME_SCHEMES, RapTokenizer
 
-MODEL_PATH = os.getenv("RAPGPT_MODEL_PATH", "models/best_model.pt")
+DEFAULT_MODEL = "models/rap_finetuned.pt" if Path("models/rap_finetuned.pt").exists() else "models/best_model.pt"
+MODEL_PATH = os.getenv("RAPGPT_MODEL_PATH", DEFAULT_MODEL)
 TOKENIZER_PATH = os.getenv("RAPGPT_TOKENIZER_PATH", "models/tokenizer.json")
 
 generator = None

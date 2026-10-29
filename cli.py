@@ -19,7 +19,10 @@ from rapgpt.tokenizer import RapTokenizer
 
 
 def get_default_paths():
-    model_path = os.getenv("RAPGPT_MODEL_PATH", "models/best_model.pt")
+    finetuned = "models/rap_finetuned.pt"
+    pretrained = "models/best_model.pt"
+    default_model = finetuned if Path(finetuned).exists() else pretrained
+    model_path = os.getenv("RAPGPT_MODEL_PATH", default_model)
     tokenizer_path = os.getenv("RAPGPT_TOKENIZER_PATH", "models/tokenizer.json")
     return model_path, tokenizer_path
 
@@ -113,6 +116,7 @@ def cmd_train(args):
         learning_rate=args.lr,
         max_steps=args.steps,
         eval_interval=args.eval_interval,
+        eval_iters=args.eval_iters,
         save_checkpoint_name=args.output,
     )
 
@@ -201,6 +205,7 @@ def main():
     train_parser.add_argument("--block-size", type=int, default=256)
     train_parser.add_argument("--lr", type=float, default=3e-5)
     train_parser.add_argument("--eval-interval", type=int, default=50)
+    train_parser.add_argument("--eval-iters", type=int, default=5)
     train_parser.add_argument("--output", "-o", type=str, default="rap_finetuned.pt")
     train_parser.add_argument("--from-scratch", action="store_true")
     train_parser.set_defaults(func=cmd_train)
