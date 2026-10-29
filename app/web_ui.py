@@ -11,22 +11,34 @@ from rapgpt.metrics import analyze_rap_lyrics
 from rapgpt.model import NanoGPT
 from rapgpt.tokenizer import CADENCES, GENRES, MOODS, RHYME_SCHEMES, RapTokenizer
 
-DEFAULT_MODEL = "models/rap_finetuned.pt" if Path("models/rap_finetuned.pt").exists() else "models/best_model.pt"
-MODEL_PATH = os.getenv("RAPGPT_MODEL_PATH", DEFAULT_MODEL)
+RAP_MODEL_PATH = os.getenv("RAPGPT_MODEL_PATH", "models/rap_finetuned.pt" if Path("models/rap_finetuned.pt").exists() else "models/best_model.pt")
+POETRY_MODEL_PATH = os.getenv("RAPGPT_POETRY_MODEL_PATH", "models/best_model.pt")
 TOKENIZER_PATH = os.getenv("RAPGPT_TOKENIZER_PATH", "models/tokenizer.json")
 
-generator = None
+rap_generator = None
+poetry_generator = None
 
 
-def get_generator():
-    global generator
-    if generator is None:
-        if not Path(MODEL_PATH).exists() or not Path(TOKENIZER_PATH).exists():
+def get_rap_generator():
+    global rap_generator
+    if rap_generator is None:
+        if not Path(RAP_MODEL_PATH).exists() or not Path(TOKENIZER_PATH).exists():
             return None
         tok = RapTokenizer.load(TOKENIZER_PATH)
-        model, _ = NanoGPT.load_pretrained(MODEL_PATH)
-        generator = RapGenerator(model, tok)
-    return generator
+        model, _ = NanoGPT.load_pretrained(RAP_MODEL_PATH)
+        rap_generator = RapGenerator(model, tok)
+    return rap_generator
+
+
+def get_poetry_generator():
+    global poetry_generator
+    if poetry_generator is None:
+        if not Path(POETRY_MODEL_PATH).exists() or not Path(TOKENIZER_PATH).exists():
+            return None
+        tok = RapTokenizer.load(TOKENIZER_PATH)
+        model, _ = NanoGPT.load_pretrained(POETRY_MODEL_PATH)
+        poetry_generator = RapGenerator(model, tok)
+    return poetry_generator
 
 
 def generate_rap_lyrics(
@@ -43,7 +55,7 @@ def generate_rap_lyrics(
     top_k,
     repetition_penalty,
 ):
-    gen = get_generator()
+    gen = get_rap_generator()
     if gen is None:
         return (
             "Model checkpoint or tokenizer not found in models/",
@@ -76,7 +88,7 @@ def generate_rap_lyrics(
     lyrics, stats = gen.generate(prompt, config=cfg, clean_output=True)
     analysis = analyze_rap_lyrics(lyrics)
 
-    stat_str = f"{stats['tokens_generated']} tokens, {stats['elapsed_seconds']}s ({stats['tokens_per_second']} tok/s)"
+    stat_str = f"{stats['tokens_generated']} tokens, {stats['elapsed_seconds']}s ({stats['tokens_per_second']} tok/s) [Rap model]"
     rhyme_scheme = analysis.get("rhyme_scheme", "N/A")
     rhyme_density = f"{analysis.get('rhyme_density', 0)}%"
     avg_syllables = str(analysis.get("avg_syllables_per_line", "N/A"))
@@ -86,9 +98,9 @@ def generate_rap_lyrics(
 
 
 def generate_poetry(prompt, max_tokens, temperature, top_p, rep_pen):
-    gen = get_generator()
+    gen = get_poetry_generator()
     if gen is None:
-        return "Model not loaded.", "N/A"
+        return "Poetry model not loaded.", "N/A"
 
     cfg = GenerationConfig(
         max_new_tokens=int(max_tokens),
@@ -100,7 +112,7 @@ def generate_poetry(prompt, max_tokens, temperature, top_p, rep_pen):
     raw_prompt = f"<|start|>\n{prompt.strip()}"
     text, stats = gen.generate(raw_prompt, config=cfg, clean_output=False)
     cleaned = text.replace("<|start|>", "").replace("<|end|>", "").strip()
-    stat_str = f"{stats['tokens_generated']} tokens ({stats['tokens_per_second']} tok/s)"
+    stat_str = f"{stats['tokens_generated']} tokens ({stats['tokens_per_second']} tok/s) [Poetry base model]"
     return cleaned, stat_str
 
 
@@ -222,4 +234,4 @@ with gr.Blocks(title="RapGPT") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(server_port=7860, share=False)
+    demo.launch(server_port=7860, server_name="127.0.0.1", share=False)

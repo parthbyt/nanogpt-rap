@@ -72,7 +72,8 @@ def cmd_generate(args):
 
 
 def cmd_poetry(args):
-    model_path, tok_path = get_default_paths()
+    model_path = args.checkpoint or "models/best_model.pt"
+    tok_path = os.getenv("RAPGPT_TOKENIZER_PATH", "models/tokenizer.json")
     tok = RapTokenizer.load(tok_path)
     model, _ = NanoGPT.load_pretrained(model_path)
     generator = RapGenerator(model, tok)
@@ -196,6 +197,7 @@ def main():
     poem_parser.add_argument("--temperature", "-t", type=float, default=0.7)
     poem_parser.add_argument("--top-p", type=float, default=0.9)
     poem_parser.add_argument("--rep-penalty", type=float, default=1.15)
+    poem_parser.add_argument("--checkpoint", type=str, default=None)
     poem_parser.set_defaults(func=cmd_poetry)
 
     train_parser = subparsers.add_parser("train", help="Train or fine-tune model")
