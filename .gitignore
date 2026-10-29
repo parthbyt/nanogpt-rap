@@ -1,0 +1,37 @@
+# Raw experimental datasets & notebooks
+raw_files/
+raw_notebooks/
+
+# Model weights (>100MB exceeds GitHub limits)
+*.pt
+*.bin
+*.safetensors
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch / Caches
+data/.cache/
+.cache/
+torchinductor_rapgpt/
+torch_rapgpt/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments & Packaging
+.env
+.venv
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# OS artifacts
+.DS_Store
+Thumbs.db

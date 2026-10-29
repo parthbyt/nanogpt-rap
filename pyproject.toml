@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rapgpt"
+version = "1.0.0"
+description = "Conditional Autoregressive NanoGPT for Rap Lyrics and Flow Generation"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=2.0.0",
+    "tokenizers>=0.19.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "gradio>=4.0.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+rapgpt = "cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

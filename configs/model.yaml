@@ -1,0 +1,19 @@
+model:
+  vocab_size: 16000
+  block_size: 256
+  n_embed: 384
+  n_head: 6
+  n_layer: 6
+  ffn_mult: 4
+  dropout: 0.1
+  use_sdpa: true
+
+generation:
+  max_new_tokens: 150
+  temperature: 0.8
+  top_k: 40
+  top_p: 0.9
+  repetition_penalty: 1.18
+  frequency_penalty: 0.1
+  presence_penalty: 0.05
+  strategy: "top_p"
